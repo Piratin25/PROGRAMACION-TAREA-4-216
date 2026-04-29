@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from modelo import Cliente, ReservaSala, AlquilerEquipo, Asesoria, Reserva
+from proyectos_clientes import Cliente, ReservaSala, AlquilerEquipo, Asesoria, Reserva
 class App:
     def __init__(self, root):
         self.root = root
