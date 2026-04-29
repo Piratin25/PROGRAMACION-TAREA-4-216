@@ -1,2 +1,4 @@
 2026-04-29 11:29:26,446 | INFO | Reserva confirmada para Paula
 2026-04-29 11:29:26,453 | INFO | Intento de confirmacion procesado
+2026-04-29 11:38:37,473 | INFO | Reserva confirmada para paula
+2026-04-29 11:38:37,474 | INFO | Intento de confirmacion procesado
