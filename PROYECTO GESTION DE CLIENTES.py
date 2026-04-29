@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import logging
-from datetime import datetime
+import tkinter as tk
+from tkinter import ttk, messagebox
 
-# ---------------- VALIDACIONES REUTILIZABLES ----------------
+# ---------------- VALIDACIONES ----------------
 def validar_texto_vacio(valor, campo):
     if not valor or valor.strip() == "":
         raise ValueError(f"El campo {campo} no puede estar vacío")
@@ -83,14 +84,13 @@ class Servicio(ABC):
     def descripcion(self):
         pass
 
-    # 🔥 MÉTODO SOBRECARGADO
     def calcular_costo_con_descuento(self, descuento=0):
-         if descuento < 0 or descuento > 100:
+        if descuento < 0 or descuento > 100:
             raise ValueError("Descuento debe estar entre 0 y 100")
-         costo = self.calcular_costo()
-         costo -= costo * (descuento / 100)
-         return costo
-               
+        costo = self.calcular_costo()
+        costo -= costo * (descuento / 100)
+        return costo
+
 # ---------------- SERVICIOS ----------------
 class ReservaSala(Servicio):
     def __init__(self, horas):
@@ -140,7 +140,7 @@ class Reserva:
             costo = self.servicio.calcular_costo()
             self.estado = "Confirmada"
             logging.info(f"Reserva confirmada para {self.cliente._nombre}")
-            print(f"Reserva confirmada. Costo: {costo}")
+            return costo
         except Exception as e:
             logging.error(str(e))
             raise ReservaError("Error al confirmar reserva") from e
@@ -148,52 +148,69 @@ class Reserva:
     def cancelar(self):
         self.estado = "Cancelada"
         logging.info("Reserva cancelada")
-        print("Reserva cancelada")
 
     def mostrar(self):
         return f"{self.cliente.mostrar_info()} | {self.servicio.descripcion()} | Estado: {self.estado}"
 
-# ---------------- SIMULACIÓN ----------------
-def simulacion():
-    operaciones = []
+# ---------------- INTERFAZ ----------------
+def crear_interfaz():
+    root = tk.Tk()
+    root.title("Sistema de Gestión de Clientes")
+    root.geometry("350x250")
 
-    for i in range(10):
+    # Campos
+    ttk.Label(root, text="Nombre").grid(row=0, column=0, padx=5, pady=5)
+    entry_nombre = ttk.Entry(root)
+    entry_nombre.grid(row=0, column=1)
+
+    ttk.Label(root, text="Email").grid(row=1, column=0, padx=5, pady=5)
+    entry_email = ttk.Entry(root)
+    entry_email.grid(row=1, column=1)
+
+    ttk.Label(root, text="Servicio").grid(row=2, column=0, padx=5, pady=5)
+    combo_servicio = ttk.Combobox(root, values=[
+        "Reserva Sala", "Alquiler Equipo", "Asesoría"
+    ])
+    combo_servicio.grid(row=2, column=1)
+
+    ttk.Label(root, text="Cantidad").grid(row=3, column=0, padx=5, pady=5)
+    entry_cantidad = ttk.Entry(root)
+    entry_cantidad.grid(row=3, column=1)
+
+    resultado = tk.StringVar()
+    ttk.Label(root, textvariable=resultado).grid(row=5, column=0, columnspan=2, pady=10)
+
+    def procesar():
         try:
-            # Cliente (algunos inválidos)
-            if i == 2:
-                cliente = Cliente(i, "", "correo.com")
-            else:
-                cliente = Cliente(i, f"Cliente{i}", f"cliente{i}@correo.com")
+            nombre = entry_nombre.get()
+            email = entry_email.get()
+            servicio_tipo = combo_servicio.get()
+            cantidad = int(entry_cantidad.get())
 
-            # Servicio (algunos inválidos)
-            if i % 3 == 0:
-                servicio = ReservaSala(i - 2)
-            elif i % 3 == 1:
-                servicio = AlquilerEquipo(i)
+            cliente = Cliente(1, nombre, email)
+
+            if servicio_tipo == "Reserva Sala":
+                servicio = ReservaSala(cantidad)
+            elif servicio_tipo == "Alquiler Equipo":
+                servicio = AlquilerEquipo(cantidad)
+            elif servicio_tipo == "Asesoría":
+                servicio = Asesoria(cantidad)
             else:
-                servicio = Asesoria(i)
+                raise ValueError("Seleccione un servicio válido")
 
             reserva = Reserva(cliente, servicio)
+            costo = reserva.confirmar()
 
-            # 🔥 uso del método con descuento
-            costo = servicio.calcular_costo_con_descuento(10)
-
-            reserva.confirmar()
-
-            operaciones.append(reserva.mostrar())
+            resultado.set(f"Costo: {costo} | Estado: {reserva.estado}")
 
         except Exception as e:
-            logging.error(str(e))
-            print(f"Error controlado: {e}")
+            messagebox.showerror("Error", str(e))
 
-        finally:
-            print("Operación procesada\n")
+    ttk.Button(root, text="Procesar", command=procesar).grid(row=4, column=0, columnspan=2, pady=10)
 
-    print("\n--- RESUMEN ---")
-    for op in operaciones:
-        print(op)
+    root.mainloop()
 
 # ---------------- MAIN ----------------
 if __name__ == "__main__":
-    simulacion()
+    crear_interfaz()
     
