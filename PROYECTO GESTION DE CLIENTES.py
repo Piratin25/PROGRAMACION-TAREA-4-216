@@ -85,11 +85,12 @@ class Servicio(ABC):
 
     # 🔥 MÉTODO SOBRECARGADO
     def calcular_costo_con_descuento(self, descuento=0):
-        costo = self.calcular_costo()
-        if descuento > 0:
-            costo -= costo * (descuento / 100)
-        return costo
-
+         if descuento < 0 or descuento > 100:
+            raise ValueError("Descuento debe estar entre 0 y 100")
+         costo = self.calcular_costo()
+         costo -= costo * (descuento / 100)
+         return costo
+               
 # ---------------- SERVICIOS ----------------
 class ReservaSala(Servicio):
     def __init__(self, horas):
