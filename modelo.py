@@ -19,7 +19,7 @@ def validar_numero_positivo(valor, campo):
 logging.basicConfig(
     filename="logs.txt",
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format="%(asctime)s | %(levelname)s | %(message)s"
 )
 
 # ---------------- EXCEPCIONES ----------------
@@ -39,7 +39,10 @@ class ReservaError(ErrorSistema):
 class Entidad(ABC):
     def __init__(self, id):
         self._id = id
-
+        
+    def get_id(self):
+        return self._id
+    
     @abstractmethod
     def mostrar_info(self):
         pass
@@ -66,15 +69,24 @@ class Cliente(Entidad):
         except Exception as e:
             logging.error(str(e))
             raise ClienteError("Error en email") from e
+    
+    def get_nombre(self):
+        return self._nombre
+    
+    def get_email(self):
+        return self._email
 
     def mostrar_info(self):
-        return f"Cliente: {self._nombre} - {self._email}"
+        return f"Cliente: [{self.get_id()}]: {self.get_nombre()} - {self.get_email()}"
 
 # ---------------- SERVICIO ABSTRACTO ----------------
 class Servicio(ABC):
     def __init__(self, nombre):
-        self.nombre = nombre
-
+        self._nombre = nombre
+        
+    def get_nombre(self):
+        return self._nombre
+    
     @abstractmethod
     def calcular_costo(self):
         pass
@@ -85,6 +97,8 @@ class Servicio(ABC):
 
     # 🔥 MÉTODO SOBRECARGADO
     def calcular_costo_con_descuento(self, descuento=0):
+        if descuento < 0 or descuento > 100:
+            raise ServicioError("Descuento invalido")
         costo = self.calcular_costo()
         if descuento > 0:
             costo -= costo * (descuento / 100)
@@ -130,23 +144,47 @@ class Asesoria(Servicio):
 # ---------------- RESERVA ----------------
 class Reserva:
     def __init__(self, cliente, servicio):
+        if not isinstance(cliente, Cliente):
+            raise ReservaError("Cliente invalido")
+        if not isinstance(servicio, Servicio):
+            raise ReservaError("Servicio invalido")
+        
         self.cliente = cliente
         self.servicio = servicio
         self.estado = "Pendiente"
+        self.fecha = datetime.now()
 
     def confirmar(self):
         try:
+            if self.estado == "Confirmada":
+                raise ReservaError("La reserva ya esta confirmada")
+            
             costo = self.servicio.calcular_costo()
-            self.estado = "Confirmada"
-            logging.info(f"Reserva confirmada para {self.cliente._nombre}")
-            print(f"Reserva confirmada. Costo: {costo}")
+            
         except Exception as e:
             logging.error(str(e))
             raise ReservaError("Error al confirmar reserva") from e
-
+        
+        else:
+            self.estado = "Confirmada"
+            logging.info(f"Reserva confirmada para {self.cliente.get_nombre()}")
+            print(f"Reserva confirmada. Costo: {costo}")
+        
+        finally:
+            logging.info("Intento de confirmacion procesado")
+            
+        if self.estado == "Cancelada":
+            raise ReservaError("No se puede confirmar una reserva cancelada")
+        
     def cancelar(self):
+        if self.estado == "Cancelada":
+            raise ReservaError("La reserva ya esta cancelada")
+        
+        if self.estado == "Confirmada":
+            raise ReservaError("No se puede cancelar una reserva confirmada")
+        
         self.estado = "Cancelada"
-        logging.info("Reserva cancelada")
+        logging.info(f"Reserva cancelada: {self.cliente.get_nombre()}")
         print("Reserva cancelada")
 
     def mostrar(self):
@@ -176,7 +214,9 @@ def simulacion():
 
             # 🔥 uso del método con descuento
             costo = servicio.calcular_costo_con_descuento(10)
-
+            print(f"Costos con descuento: {costo}")
+            logging.info(f"Costo calculado con descuentos: {costo}")
+            
             reserva.confirmar()
 
             operaciones.append(reserva.mostrar())
