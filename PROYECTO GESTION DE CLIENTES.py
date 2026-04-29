@@ -70,6 +70,10 @@ class Cliente(Entidad):
         except Exception as e:
             logging.error(str(e))
             raise ClienteError("Error en email") from e
+    
+    @property
+    def nombre(self):
+        return self._nombre
 
     def mostrar_info(self):
         return f"Cliente: {self._nombre} - {self._email}"
@@ -137,20 +141,35 @@ class Reserva:
         self.cliente = cliente
         self.servicio = servicio
         self.estado = "Pendiente"
-
+        self.costo = 0
+        
+    def validar_reserva(self):
+        if self.cliente is None:
+            raise ReservaError("La reserva no tiene cliente asignado")
+        if self.servicio is None:
+            raise ReservaError("La reserva no tiene servicio asignado") 
+        
     def confirmar(self):
         try:
-            costo = self.servicio.calcular_costo()
-            self.estado = "Confirmada"
-            logging.info(f"Reserva confirmada para {self.cliente._nombre}")
-            return costo
+            self.validar_reserva()
+            self.costo = self.servicio.calcular_costo()
         except Exception as e:
             logging.error(str(e))
             raise ReservaError("Error al confirmar reserva") from e
-
+        else: 
+            self.estado = "Confirmada"
+            logging.info(f"Reserva confirmada para {self.cliente.nombre}")
+            print (f"Reserva confirmada. Costo: {self.costo}")
+            return self.costo
+            
+        finally:
+            logging.info("Proceso de confirmación finalizado")
+            
+             
     def cancelar(self):
         self.estado = "Cancelada"
         logging.info("Reserva cancelada")
+        print ("Reserva cancelada")
 
     def mostrar(self):
         return f"{self.cliente.mostrar_info()} | {self.servicio.descripcion()} | Estado: {self.estado}"
@@ -208,9 +227,10 @@ def crear_interfaz():
 
             reserva = Reserva(cliente, servicio)
             reservas.append(reserva)
+            
             costo = reserva.confirmar()
-
-            resultado.set(f"Costo: {costo} | Estado: {reserva.estado}")
+            
+            resultado.set(f"Costo: {reserva.costo} | Estado: {reserva.estado}")
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
