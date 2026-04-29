@@ -22,6 +22,9 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
+# ---------------- LISTAS ----------------
+clientes = []  
+reservas = [] 
 
 # ---------------- EXCEPCIONES ----------------
 class ErrorSistema(Exception):
@@ -156,7 +159,7 @@ class Reserva:
 def crear_interfaz():
     root = tk.Tk()
     root.title("Sistema de Gestión de Clientes")
-    root.geometry("350x250")
+    root.geometry("500x500")
 
     # Campos
     ttk.Label(root, text="Nombre").grid(row=0, column=0, padx=5, pady=5)
@@ -185,9 +188,14 @@ def crear_interfaz():
             nombre = entry_nombre.get()
             email = entry_email.get()
             servicio_tipo = combo_servicio.get()
-            cantidad = int(entry_cantidad.get())
+            
+            try:
+                cantidad = int(entry_cantidad.get())
+            except ValueError:
+                raise ValueError("Cantidad debe ser un número entero")
 
-            cliente = Cliente(1, nombre, email)
+            cliente = Cliente(len(clientes) + 1, nombre, email)
+            clientes.append(cliente)
 
             if servicio_tipo == "Reserva Sala":
                 servicio = ReservaSala(cantidad)
@@ -199,6 +207,7 @@ def crear_interfaz():
                 raise ValueError("Seleccione un servicio válido")
 
             reserva = Reserva(cliente, servicio)
+            reservas.append(reserva)
             costo = reserva.confirmar()
 
             resultado.set(f"Costo: {costo} | Estado: {reserva.estado}")
