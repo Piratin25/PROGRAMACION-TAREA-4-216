@@ -22,9 +22,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
 # ---------------- LISTAS ----------------
-clientes = []  
-reservas = [] 
+clientes = []
+reservas = []
 
 # ---------------- EXCEPCIONES ----------------
 class ErrorSistema(Exception):
@@ -70,7 +71,7 @@ class Cliente(Entidad):
         except Exception as e:
             logging.error(str(e))
             raise ClienteError("Error en email") from e
-    
+
     @property
     def nombre(self):
         return self._nombre
@@ -142,13 +143,13 @@ class Reserva:
         self.servicio = servicio
         self.estado = "Pendiente"
         self.costo = 0
-        
+
     def validar_reserva(self):
         if self.cliente is None:
             raise ReservaError("La reserva no tiene cliente asignado")
         if self.servicio is None:
-            raise ReservaError("La reserva no tiene servicio asignado") 
-        
+            raise ReservaError("La reserva no tiene servicio asignado")
+
     def confirmar(self):
         try:
             self.validar_reserva()
@@ -156,58 +157,85 @@ class Reserva:
         except Exception as e:
             logging.error(str(e))
             raise ReservaError("Error al confirmar reserva") from e
-        else: 
+        else:
             self.estado = "Confirmada"
             logging.info(f"Reserva confirmada para {self.cliente.nombre}")
-            print (f"Reserva confirmada. Costo: {self.costo}")
             return self.costo
-            
         finally:
             logging.info("Proceso de confirmación finalizado")
-            
-             
+
     def cancelar(self):
         self.estado = "Cancelada"
         logging.info("Reserva cancelada")
-        print ("Reserva cancelada")
 
     def mostrar(self):
         return f"{self.cliente.mostrar_info()} | {self.servicio.descripcion()} | Estado: {self.estado}"
 
-# ---------------- INTERFAZ ----------------
+# ---------------- INTERFAZ MEJORADA ----------------
 def crear_interfaz():
     root = tk.Tk()
     root.title("Sistema de Gestión de Clientes")
-    root.geometry("500x500")
+    root.geometry("700x500")
+    root.resizable(False, False)
 
-    # Campos
-    ttk.Label(root, text="Nombre").grid(row=0, column=0, padx=5, pady=5)
-    entry_nombre = ttk.Entry(root)
-    entry_nombre.grid(row=0, column=1)
+    # -------- ESTILOS --------
+    style = ttk.Style()
+    style.theme_use("clam")
 
-    ttk.Label(root, text="Email").grid(row=1, column=0, padx=5, pady=5)
-    entry_email = ttk.Entry(root)
-    entry_email.grid(row=1, column=1)
+    style.configure("TLabel", font=("Segoe UI", 10))
+    style.configure("TEntry", padding=5)
+    style.configure("TButton", font=("Segoe UI", 10, "bold"), padding=8)
+    style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"))
 
-    ttk.Label(root, text="Servicio").grid(row=2, column=0, padx=5, pady=5)
-    combo_servicio = ttk.Combobox(root, values=[
+    # -------- CONTENEDOR --------
+    main = ttk.Frame(root, padding=20)
+    main.pack(fill="both", expand=True)
+
+    ttk.Label(main, text="Sistema de Reservas", style="Header.TLabel").pack(pady=10)
+
+    # -------- FORMULARIO --------
+    form = ttk.Frame(main)
+    form.pack(pady=10)
+
+    ttk.Label(form, text="Nombre").grid(row=0, column=0, sticky="w", pady=5)
+    entry_nombre = ttk.Entry(form, width=35)
+    entry_nombre.grid(row=0, column=1, padx=10)
+
+    ttk.Label(form, text="Email").grid(row=1, column=0, sticky="w", pady=5)
+    entry_email = ttk.Entry(form, width=35)
+    entry_email.grid(row=1, column=1, padx=10)
+
+    ttk.Label(form, text="Servicio").grid(row=2, column=0, sticky="w", pady=5)
+    combo_servicio = ttk.Combobox(form, state="readonly", values=[
         "Reserva Sala", "Alquiler Equipo", "Asesoría"
     ])
-    combo_servicio.grid(row=2, column=1)
+    combo_servicio.grid(row=2, column=1, padx=10)
 
-    ttk.Label(root, text="Cantidad").grid(row=3, column=0, padx=5, pady=5)
-    entry_cantidad = ttk.Entry(root)
-    entry_cantidad.grid(row=3, column=1)
+    ttk.Label(form, text="Cantidad").grid(row=3, column=0, sticky="w", pady=5)
+    entry_cantidad = ttk.Entry(form, width=35)
+    entry_cantidad.grid(row=3, column=1, padx=10)
 
+    # -------- RESULTADO --------
     resultado = tk.StringVar()
-    ttk.Label(root, textvariable=resultado).grid(row=5, column=0, columnspan=2, pady=10)
+    ttk.Label(main, textvariable=resultado, foreground="green").pack(pady=10)
 
+    # -------- TABLA --------
+    columnas = ("Cliente", "Servicio", "Estado")
+    tabla = ttk.Treeview(main, columns=columnas, show="headings", height=8)
+
+    for col in columnas:
+        tabla.heading(col, text=col)
+        tabla.column(col, anchor="center")
+
+    tabla.pack(pady=10, fill="x")
+
+    # -------- FUNCION --------
     def procesar():
         try:
             nombre = entry_nombre.get()
             email = entry_email.get()
             servicio_tipo = combo_servicio.get()
-            
+
             try:
                 cantidad = int(entry_cantidad.get())
             except ValueError:
@@ -227,15 +255,27 @@ def crear_interfaz():
 
             reserva = Reserva(cliente, servicio)
             reservas.append(reserva)
-            
-            costo = reserva.confirmar()
-            
-            resultado.set(f"Costo: {reserva.costo} | Estado: {reserva.estado}")
+
+            reserva.confirmar()
+
+            resultado.set(f"✔ Costo: ${reserva.costo} | Estado: {reserva.estado}")
+
+            tabla.insert("", "end", values=(
+                cliente.nombre,
+                servicio.descripcion(),
+                reserva.estado
+            ))
+
+            # limpiar campos
+            entry_nombre.delete(0, tk.END)
+            entry_email.delete(0, tk.END)
+            entry_cantidad.delete(0, tk.END)
+            combo_servicio.set("")
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    ttk.Button(root, text="Procesar", command=procesar).grid(row=4, column=0, columnspan=2, pady=10)
+    ttk.Button(main, text="Procesar Reserva", command=procesar).pack(pady=15)
 
     root.mainloop()
 
