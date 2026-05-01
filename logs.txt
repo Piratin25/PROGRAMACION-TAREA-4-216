@@ -24,3 +24,12 @@
 2026-05-01 08:36:45,363 - INFO - Proceso de confirmación finalizado
 2026-05-01 08:36:47,791 - ERROR - Cantidad debe ser un número entero
 2026-05-01 08:36:49,895 - ERROR - Cantidad debe ser un número entero
+2026-05-01 08:39:54,038 - ERROR - Debe seleccionar una reserva para modificar
+2026-05-01 08:40:08,039 - ERROR - Email inválido
+2026-05-01 08:40:15,277 - INFO - Reserva confirmada para emerson torres
+2026-05-01 08:40:15,277 - INFO - Proceso de confirmación finalizado
+2026-05-01 08:40:16,516 - ERROR - Cantidad debe ser un número entero
+2026-05-01 08:41:44,226 - ERROR - El campo nombre no puede estar vacío
+2026-05-01 08:42:03,112 - INFO - Reserva confirmada para Emerson Sanchez
+2026-05-01 08:42:03,113 - INFO - Proceso de confirmación finalizado
+2026-05-01 08:42:03,113 - INFO - Reserva modificada para Emerson Sanchez
