@@ -76,6 +76,10 @@ class Cliente(Entidad):
     def nombre(self):
         return self._nombre
 
+    @property
+    def email(self):
+        return self._email
+
     def mostrar_info(self):
         return f"Cliente: {self._nombre} - {self._email}"
 
@@ -91,13 +95,6 @@ class Servicio(ABC):
     @abstractmethod
     def descripcion(self):
         pass
-
-    def calcular_costo_con_descuento(self, descuento=0):
-        if descuento < 0 or descuento > 100:
-            raise ValueError("Descuento debe estar entre 0 y 100")
-        costo = self.calcular_costo()
-        costo -= costo * (descuento / 100)
-        return costo
 
 # ---------------- SERVICIOS ----------------
 class ReservaSala(Servicio):
@@ -144,133 +141,118 @@ class Reserva:
         self.estado = "Pendiente"
         self.costo = 0
 
-    def validar_reserva(self):
-        if self.cliente is None:
-            raise ReservaError("La reserva no tiene cliente asignado")
-        if self.servicio is None:
-            raise ReservaError("La reserva no tiene servicio asignado")
-
     def confirmar(self):
-        try:
-            self.validar_reserva()
-            self.costo = self.servicio.calcular_costo()
-        except Exception as e:
-            logging.error(str(e))
-            raise ReservaError("Error al confirmar reserva") from e
-        else:
-            self.estado = "Confirmada"
-            logging.info(f"Reserva confirmada para {self.cliente.nombre}")
-            return self.costo
-        finally:
-            logging.info("Proceso de confirmación finalizado")
+        self.costo = self.servicio.calcular_costo()
+        self.estado = "Confirmada"
+        return self.costo
 
-    def cancelar(self):
-        self.estado = "Cancelada"
-        logging.info("Reserva cancelada")
-
-    def mostrar(self):
-        return f"{self.cliente.mostrar_info()} | {self.servicio.descripcion()} | Estado: {self.estado}"
-
-# ---------------- INTERFAZ MEJORADA ----------------
+# ---------------- INTERFAZ ----------------
 def crear_interfaz():
     root = tk.Tk()
-    root.title("Sistema de Gestión de Clientes")
+    root.title("Sistema de Reservas")
     root.geometry("850x650")
-    root.resizable(True, True)
 
-    # -------- ESTILOS --------
-    style = ttk.Style()
-    style.theme_use("clam")
-
-    style.configure("TLabel", font=("Segoe UI", 10))
-    style.configure("TEntry", padding=5)
-    style.configure("TButton", font=("Segoe UI", 10, "bold"), padding=8)
-    style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"))
-
-    # -------- CONTENEDOR --------
     main = ttk.Frame(root, padding=20)
     main.pack(fill="both", expand=True)
 
-    ttk.Label(main, text="Sistema de Reservas", style="Header.TLabel").pack(pady=10)
+    ttk.Label(main, text="Sistema de Reservas", font=("Segoe UI", 18, "bold")).pack(pady=10)
 
-    # -------- FORMULARIO --------
     form = ttk.Frame(main)
     form.pack(pady=10)
 
-    ttk.Label(form, text="Nombre").grid(row=0, column=0, sticky="w", pady=5)
+    ttk.Label(form, text="Nombre").grid(row=0, column=0)
     entry_nombre = ttk.Entry(form, width=35)
-    entry_nombre.grid(row=0, column=1, padx=10)
+    entry_nombre.grid(row=0, column=1)
 
-    ttk.Label(form, text="Email").grid(row=1, column=0, sticky="w", pady=5)
+    ttk.Label(form, text="Email").grid(row=1, column=0)
     entry_email = ttk.Entry(form, width=35)
-    entry_email.grid(row=1, column=1, padx=10)
+    entry_email.grid(row=1, column=1)
 
-    ttk.Label(form, text="Servicio").grid(row=2, column=0, sticky="w", pady=5)
-    combo_servicio = ttk.Combobox(form, state="readonly", values=[
-        "Reserva Sala", "Alquiler Equipo", "Asesoría"
-    ])
-    combo_servicio.grid(row=2, column=1, padx=10)
+    ttk.Label(form, text="Servicio").grid(row=2, column=0)
+    combo_servicio = ttk.Combobox(form, state="readonly",
+        values=["Reserva Sala", "Alquiler Equipo", "Asesoría"])
+    combo_servicio.grid(row=2, column=1)
 
-    ttk.Label(form, text="Cantidad").grid(row=3, column=0, sticky="w", pady=5)
+    ttk.Label(form, text="Cantidad").grid(row=3, column=0)
     entry_cantidad = ttk.Entry(form, width=35)
-    entry_cantidad.grid(row=3, column=1, padx=10)
+    entry_cantidad.grid(row=3, column=1)
 
-    # -------- RESULTADO --------
     resultado = tk.StringVar()
     ttk.Label(main, textvariable=resultado, foreground="green").pack(pady=10)
 
-    # -------- TABLA --------
     columnas = ("Cliente", "Servicio", "Estado")
-    tabla = ttk.Treeview(main, columns=columnas, show="headings", height=5)
+    tabla = ttk.Treeview(main, columns=columnas, show="headings")
 
     for col in columnas:
         tabla.heading(col, text=col)
-        tabla.column(col, anchor="center")
 
     tabla.pack(pady=10, fill="x")
 
-    # -------- FUNCION --------
-    def procesar():
-        try:
-            nombre = entry_nombre.get()
-            email = entry_email.get()
-            servicio_tipo = combo_servicio.get()
+    # -------- SELECCIONAR --------
+    def seleccionar_reserva(event):
+        seleccionado = tabla.selection()
+        if not seleccionado:
+            return
 
-            try:
-                cantidad = int(entry_cantidad.get())
-            except ValueError:
-                raise ValueError("Cantidad debe ser un número entero")
+        item = seleccionado[0]
+        indice = tabla.index(item)
+        reserva = reservas[indice]
 
-            cliente = Cliente(len(clientes) + 1, nombre, email)
-            clientes.append(cliente)
+        entry_nombre.delete(0, tk.END)
+        entry_nombre.insert(0, reserva.cliente.nombre)
 
-            if servicio_tipo == "Reserva Sala":
-                servicio = ReservaSala(cantidad)
-            elif servicio_tipo == "Alquiler Equipo":
-                servicio = AlquilerEquipo(cantidad)
-            elif servicio_tipo == "Asesoría":
-                servicio = Asesoria(cantidad)
-            else:
-                raise ValueError("Seleccione un servicio válido")
+        entry_email.delete(0, tk.END)
+        entry_email.insert(0, reserva.cliente.email)
 
-            reserva = Reserva(cliente, servicio)
-            reservas.append(reserva)
+        if isinstance(reserva.servicio, ReservaSala):
+            combo_servicio.set("Reserva Sala")
+            cantidad = reserva.servicio.horas
+        elif isinstance(reserva.servicio, AlquilerEquipo):
+            combo_servicio.set("Alquiler Equipo")
+            cantidad = reserva.servicio.dias
+        else:
+            combo_servicio.set("Asesoría")
+            cantidad = reserva.servicio.horas
 
-            reserva.confirmar()
+        entry_cantidad.delete(0, tk.END)
+        entry_cantidad.insert(0, str(cantidad))
 
-            resultado.set(f"✔ Costo: ${reserva.costo} | Estado: {reserva.estado}")
+    tabla.bind("<<TreeviewSelect>>", seleccionar_reserva)
 
-            tabla.insert("", "end", values=(
-                cliente.nombre,
-                servicio.descripcion(),
-                reserva.estado
-            ))
-
-            # limpiar campos
+    # -------- LIMPIAR SELECCION --------
+    def limpiar_seleccion(event):
+        item = tabla.identify_row(event.y)
+        if not item:
+            tabla.selection_remove(tabla.selection())
             entry_nombre.delete(0, tk.END)
             entry_email.delete(0, tk.END)
             entry_cantidad.delete(0, tk.END)
             combo_servicio.set("")
+
+    tabla.bind("<Button-1>", limpiar_seleccion)
+
+    # -------- FUNCIONES --------
+    def procesar():
+        try:
+            cliente = Cliente(len(clientes)+1, entry_nombre.get(), entry_email.get())
+            clientes.append(cliente)
+
+            cantidad = int(entry_cantidad.get())
+            tipo = combo_servicio.get()
+
+            if tipo == "Reserva Sala":
+                servicio = ReservaSala(cantidad)
+            elif tipo == "Alquiler Equipo":
+                servicio = AlquilerEquipo(cantidad)
+            else:
+                servicio = Asesoria(cantidad)
+
+            reserva = Reserva(cliente, servicio)
+            reservas.append(reserva)
+            reserva.confirmar()
+
+            tabla.insert("", "end", values=(cliente.nombre, servicio.descripcion(), reserva.estado))
+            resultado.set(f"✔ Costo: ${reserva.costo}")
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
@@ -278,61 +260,45 @@ def crear_interfaz():
     def modificar_reserva():
         try:
             seleccionado = tabla.selection()
-
             if not seleccionado:
-                raise ReservaError("Debe seleccionar una reserva para modificar")
+                raise Exception("Seleccione una reserva")
 
             item = seleccionado[0]
             indice = tabla.index(item)
 
-            nombre = entry_nombre.get()
-            email = entry_email.get()
-            servicio_tipo = combo_servicio.get()
+            cliente = Cliente(indice+1, entry_nombre.get(), entry_email.get())
 
-            try:
-                cantidad = int(entry_cantidad.get())
-            except ValueError:
-                raise ValueError("Cantidad debe ser un número entero")
+            cantidad = int(entry_cantidad.get())
+            tipo = combo_servicio.get()
 
-            cliente = Cliente(indice + 1, nombre, email)
-
-            if servicio_tipo == "Reserva Sala":
+            if tipo == "Reserva Sala":
                 servicio = ReservaSala(cantidad)
-            elif servicio_tipo == "Alquiler Equipo":
+            elif tipo == "Alquiler Equipo":
                 servicio = AlquilerEquipo(cantidad)
-            elif servicio_tipo == "Asesoría":
-                servicio = Asesoria(cantidad)
             else:
-                raise ValueError("Seleccione un servicio válido")
+                servicio = Asesoria(cantidad)
 
             reserva = Reserva(cliente, servicio)
             reserva.confirmar()
 
             reservas[indice] = reserva
+            tabla.item(item, values=(cliente.nombre, servicio.descripcion(), reserva.estado))
 
-            tabla.item(item, values=(
-                cliente.nombre,
-                servicio.descripcion(),
-                reserva.estado
-            ))
-
-            resultado.set(f"✔ Reserva modificada | Costo: ${reserva.costo}")
-            logging.info(f"Reserva modificada para {cliente.nombre}")
-
-            entry_nombre.delete(0, tk.END)
-            entry_email.delete(0, tk.END)
-            entry_cantidad.delete(0, tk.END)
-            combo_servicio.set("")
+            resultado.set(f"✔ Modificada | ${reserva.costo}")
 
         except Exception as e:
-            logging.error(str(e))
             messagebox.showerror("Error", str(e))
 
-    botones = ttk.Frame(main)
-    botones.pack(pady=15)
+    def cerrar_app():
+        if messagebox.askyesno("Salir", "¿Deseas cerrar la aplicación?"):
+            root.destroy()
 
-    ttk.Button(botones, text="Procesar Reserva", command=procesar).grid(row=0, column=0, padx=10)
-    ttk.Button(botones, text="Modificar Reserva", command=modificar_reserva).grid(row=0, column=1, padx=10)
+    botones = ttk.Frame(main)
+    botones.pack(pady=10)
+
+    ttk.Button(botones, text="Procesar", command=procesar).grid(row=0, column=0, padx=10)
+    ttk.Button(botones, text="Modificar", command=modificar_reserva).grid(row=0, column=1, padx=10)
+    ttk.Button(botones, text="Cerrar", command=cerrar_app).grid(row=0, column=2, padx=10)
 
     root.mainloop()
 
