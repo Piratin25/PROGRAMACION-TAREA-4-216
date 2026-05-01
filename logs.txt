@@ -15,3 +15,12 @@
 2026-04-30 21:14:51,292 - INFO - Proceso de confirmación finalizado
 2026-05-01 08:27:33,452 - INFO - Reserva confirmada para DJJDJ
 2026-05-01 08:27:33,454 - INFO - Proceso de confirmación finalizado
+2026-05-01 08:36:10,120 - INFO - Reserva confirmada para Emerson Vargas
+2026-05-01 08:36:10,123 - INFO - Proceso de confirmación finalizado
+2026-05-01 08:36:13,480 - ERROR - Cantidad debe ser un número entero
+2026-05-01 08:36:17,603 - ERROR - Cantidad debe ser un número entero
+2026-05-01 08:36:21,988 - ERROR - Cantidad debe ser un número entero
+2026-05-01 08:36:45,363 - INFO - Reserva confirmada para Julian Torres
+2026-05-01 08:36:45,363 - INFO - Proceso de confirmación finalizado
+2026-05-01 08:36:47,791 - ERROR - Cantidad debe ser un número entero
+2026-05-01 08:36:49,895 - ERROR - Cantidad debe ser un número entero
