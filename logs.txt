@@ -13,3 +13,5 @@
 2026-04-30 21:14:18,563 - INFO - Proceso de confirmación finalizado
 2026-04-30 21:14:51,292 - INFO - Reserva confirmada para EMERSON VARFGAS
 2026-04-30 21:14:51,292 - INFO - Proceso de confirmación finalizado
+2026-05-01 08:27:33,452 - INFO - Reserva confirmada para DJJDJ
+2026-05-01 08:27:33,454 - INFO - Proceso de confirmación finalizado
