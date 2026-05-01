@@ -175,8 +175,8 @@ class Reserva:
 def crear_interfaz():
     root = tk.Tk()
     root.title("Sistema de Gestión de Clientes")
-    root.geometry("700x500")
-    root.resizable(False, False)
+    root.geometry("850x650")
+    root.resizable(True, True)
 
     # -------- ESTILOS --------
     style = ttk.Style()
@@ -221,7 +221,7 @@ def crear_interfaz():
 
     # -------- TABLA --------
     columnas = ("Cliente", "Servicio", "Estado")
-    tabla = ttk.Treeview(main, columns=columnas, show="headings", height=8)
+    tabla = ttk.Treeview(main, columns=columnas, show="headings", height=5)
 
     for col in columnas:
         tabla.heading(col, text=col)
