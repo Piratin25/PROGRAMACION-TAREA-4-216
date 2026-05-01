@@ -45,3 +45,35 @@
 2026-05-01 08:49:22,569 - INFO - Proceso de confirmación finalizado
 2026-05-01 08:49:45,452 - INFO - Reserva confirmada para andres torres
 2026-05-01 08:49:45,452 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:06:08,819 - INFO - Aplicación cerrada por el usuario
+2026-05-01 09:08:15,929 - INFO - Reserva confirmada: javier torres
+2026-05-01 09:08:15,933 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:08:24,578 - INFO - App cerrada
+2026-05-01 09:09:22,568 - ERROR - Email inválido
+2026-05-01 09:09:22,570 - ERROR - Error en email
+2026-05-01 09:09:36,296 - ERROR - invalid literal for int() with base 10: ''
+2026-05-01 09:09:42,512 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:42,512 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:46,013 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:46,013 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:49,468 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:49,468 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:50,218 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:50,218 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:50,219 - INFO - Reserva modificada: javier sanchez
+2026-05-01 09:09:51,046 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:51,046 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:51,047 - INFO - Reserva modificada: javier sanchez
+2026-05-01 09:09:51,550 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:51,550 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:51,550 - INFO - Reserva modificada: javier sanchez
+2026-05-01 09:09:53,592 - INFO - Reserva confirmada: javier sanchez
+2026-05-01 09:09:53,593 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:09:53,593 - INFO - Reserva modificada: javier sanchez
+2026-05-01 09:10:10,106 - ERROR - El campo nombre no puede estar vacío
+2026-05-01 09:10:10,106 - ERROR - Error en nombre
+2026-05-01 09:10:14,484 - INFO - Reserva confirmada: JAVIER
+2026-05-01 09:10:14,484 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:10:25,162 - INFO - Reserva confirmada: JAVIER
+2026-05-01 09:10:25,162 - INFO - Proceso de confirmación finalizado
+2026-05-01 09:10:29,296 - INFO - App cerrada
