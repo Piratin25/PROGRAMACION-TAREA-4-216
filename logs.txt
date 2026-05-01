@@ -9,3 +9,7 @@
 2026-04-29 17:04:16,449 - INFO - Reserva confirmada para Cliente7
 2026-04-29 17:04:16,449 - INFO - Reserva confirmada para Cliente8
 2026-04-29 17:04:16,449 - INFO - Reserva confirmada para Cliente9
+2026-04-30 21:14:18,562 - INFO - Reserva confirmada para Orlando Vanega
+2026-04-30 21:14:18,563 - INFO - Proceso de confirmación finalizado
+2026-04-30 21:14:51,292 - INFO - Reserva confirmada para EMERSON VARFGAS
+2026-04-30 21:14:51,292 - INFO - Proceso de confirmación finalizado
