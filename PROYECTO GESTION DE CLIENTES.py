@@ -275,7 +275,64 @@ def crear_interfaz():
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    ttk.Button(main, text="Procesar Reserva", command=procesar).pack(pady=15)
+    def modificar_reserva():
+        try:
+            seleccionado = tabla.selection()
+
+            if not seleccionado:
+                raise ReservaError("Debe seleccionar una reserva para modificar")
+
+            item = seleccionado[0]
+            indice = tabla.index(item)
+
+            nombre = entry_nombre.get()
+            email = entry_email.get()
+            servicio_tipo = combo_servicio.get()
+
+            try:
+                cantidad = int(entry_cantidad.get())
+            except ValueError:
+                raise ValueError("Cantidad debe ser un número entero")
+
+            cliente = Cliente(indice + 1, nombre, email)
+
+            if servicio_tipo == "Reserva Sala":
+                servicio = ReservaSala(cantidad)
+            elif servicio_tipo == "Alquiler Equipo":
+                servicio = AlquilerEquipo(cantidad)
+            elif servicio_tipo == "Asesoría":
+                servicio = Asesoria(cantidad)
+            else:
+                raise ValueError("Seleccione un servicio válido")
+
+            reserva = Reserva(cliente, servicio)
+            reserva.confirmar()
+
+            reservas[indice] = reserva
+
+            tabla.item(item, values=(
+                cliente.nombre,
+                servicio.descripcion(),
+                reserva.estado
+            ))
+
+            resultado.set(f"✔ Reserva modificada | Costo: ${reserva.costo}")
+            logging.info(f"Reserva modificada para {cliente.nombre}")
+
+            entry_nombre.delete(0, tk.END)
+            entry_email.delete(0, tk.END)
+            entry_cantidad.delete(0, tk.END)
+            combo_servicio.set("")
+
+        except Exception as e:
+            logging.error(str(e))
+            messagebox.showerror("Error", str(e))
+
+    botones = ttk.Frame(main)
+    botones.pack(pady=15)
+
+    ttk.Button(botones, text="Procesar Reserva", command=procesar).grid(row=0, column=0, padx=10)
+    ttk.Button(botones, text="Modificar Reserva", command=modificar_reserva).grid(row=0, column=1, padx=10)
 
     root.mainloop()
 
